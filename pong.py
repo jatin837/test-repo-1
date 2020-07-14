@@ -5,9 +5,9 @@ display_width = 800
 display_height = 600
 game_display = pygame.display.set_mode((display_width, display_height))
 paddle_velocity = 3
-initial_pos_of_paddle = 30
-initial_x_pos_of_ball=100
-initial_y_pos_of_ball=20
+initial_pos_of_paddle = 10
+initial_x_pos_of_ball=60
+initial_y_pos_of_ball=100
 
 ball_x_vel = 3
 ball_y_vel = 3
@@ -20,6 +20,8 @@ color = {
         }
 clock = pygame.time.Clock()
 crashed = False
+
+#pong_file = open('pong.csv', 'a')
 
 class Ball():
     def __init__(self, cx, cy, vx, vy):
@@ -36,7 +38,9 @@ class Ball():
         global game_display
         global color
         pygame.draw.circle(game_display, color['black'], (self.cx, self.cy), self.RADIUS)
-    def update_position(self):
+    def update_position(self, vx, vy):
+        self.vx = vx
+        self.vy = vy
         self.cx += self.vx
         self.cy += self.vy
 
@@ -57,7 +61,8 @@ class Paddle():
         global game_display
         pygame.draw.rect(game_display, color['black'], (display_width-self.WIDTH, self.y, self.WIDTH, self.HEIGHT))
 
-    def update_position(self):
+    def update_position(self, vy):
+        self.vy = vy
         self.y += self.vy
 
 
@@ -85,61 +90,73 @@ def crash(text):
     global crashed
     crashed = True
 
-def doesCollid(ball, paddle):
+def doesCollid(ball, paddle2):
 
     global display_width
-    condition1 = (ball.cx == display_width-ball.RADIUS-paddle.WIDTH)
+    condition1 = (ball.cx == display_width-ball.RADIUS-paddle2.WIDTH)
     condition2 = False
-    for y in range(paddle.y-ball.RADIUS, paddle.y+paddle.HEIGHT+ball.RADIUS):
+    for y in range(paddle2.y-ball.RADIUS, paddle2.y+paddle2.HEIGHT+ball.RADIUS):
         if ball.cy == y:
             condition2 = True
-            return (condition1 and condition2)
     return condition1 and condition2
 def game_loop():
     global crashed
-
+    global ball_x_vel
+    global ball_y_vel
     while not crashed :
 
         clock.tick(60)
         keys = pygame.key.get_pressed()
-        ball.erase()
-        ball.update_position()
-        ball.draw()
-        pygame.display.update()
+
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT :
                 crashed = True
         if doesCollid(ball, paddle):
-            ball.vx = -ball.vx
+            ball_x_vel = -3
             if ball.vy*paddle.vy < 0:
-                ball.vy = -ball.vy
-        if ball.cx > display_width-ball.RADIUS:#ball approaching extream right
-            ball.vx = -ball.vx
+                ball_y_vel = -ball_y_vel
+        if ball.cx > display_width-ball.RADIUS :#ball approaching extream right
+            ball_x_vel = -3
+        #else:
+        #    ball_x_vel = 3
 
         if ball.cx < ball.RADIUS:#ball approaching extream left
-            ball.vx = -ball.vx
+            ball_x_vel = 3
+        #else:
+        #    ball_x_vel = -3
         if ball.cy > display_height-ball.RADIUS:#ball approaching extream down
-            ball.vy = -ball.vy
+            ball_y_vel = -3
+        #else:
+        #    ball_y_vel = 3
         if ball.cy < ball.RADIUS:#ball approaching extream up
-            ball.vy = -ball.vy
+            ball_y_vel = 3
+        #else:
+        #    ball_y_vel = -3
+
 
 
         if keys[pygame.K_UP]:
-            if paddle.y <=0:
-                paddle.y = 0
+            if paddle.y <=0 :
+                paddle_velocity = 0
             else:
-                paddle.vy =-paddle_velocity
-                paddle.erase()
-                paddle.update_position()
-                paddle.draw()
-        if keys[pygame.K_DOWN]:
+                paddle_velocity =-3
+        elif keys[pygame.K_DOWN]:
             if paddle.y >= display_height-paddle.HEIGHT:
-                paddle.y = display_height-paddle.HEIGHT
+                paddle_velocity = 0
             else:
-                paddle.vy = paddle_velocity
-                paddle.erase()
-                paddle.update_position()
-                paddle.draw()
+                paddle_velocity = 3
+        else:
+            paddle_velocity = 0
+
+        ball.erase()
+        ball.update_position(ball_x_vel, ball_y_vel)
+        ball.draw()
+        paddle.erase()
+        paddle.update_position(paddle_velocity)
+        paddle.draw()
+        pygame.display.update()
+        #print(f"{ball.cx}, {ball.cy}, {ball.vx}, {ball.vy}, {paddle.y}, {paddle.vy}", file = pong_file)
         if ball.cx == display_width - ball.RADIUS:
             crash('You Crashed')
 
