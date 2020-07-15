@@ -90,12 +90,12 @@ def crash(text):
     global crashed
     crashed = True
 
-def doesCollid(ball, paddle2):
+def doesCollid(ball, paddle):
 
     global display_width
-    condition1 = (ball.cx == display_width-ball.RADIUS-paddle2.WIDTH)
+    condition1 = (ball.cx == display_width-ball.RADIUS-paddle.WIDTH)
     condition2 = False
-    for y in range(paddle2.y-ball.RADIUS, paddle2.y+paddle2.HEIGHT+ball.RADIUS):
+    for y in range(paddle.y-ball.RADIUS, paddle.y+paddle.HEIGHT+ball.RADIUS):
         if ball.cy == y:
             condition2 = True
     return condition1 and condition2
@@ -103,6 +103,8 @@ def game_loop():
     global crashed
     global ball_x_vel
     global ball_y_vel
+    global ball
+    global paddle
     while not crashed :
 
         clock.tick(60)
@@ -114,10 +116,10 @@ def game_loop():
                 crashed = True
         if doesCollid(ball, paddle):
             ball_x_vel = -3
-            if ball.vy*paddle.vy < 0:
-                ball_y_vel = -ball_y_vel
-        if ball.cx > display_width-ball.RADIUS :#ball approaching extream right
-            ball_x_vel = -3
+            #if ball.vy*paddle.vy < 0:
+            #    ball_y_vel = -ball_y_vel
+        #if ball.cx > display_width-ball.RADIUS :#ball approaching extream right
+        #    ball_x_vel = -3
         #else:
         #    ball_x_vel = 3
 
