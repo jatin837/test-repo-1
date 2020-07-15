@@ -73,7 +73,7 @@ ball = Ball(initial_x_pos_of_ball, initial_y_pos_of_ball, ball_x_vel, ball_y_vel
 ball.draw()
 
 paddle.draw()
-
+pygame.display.update()
 def text_objects(text, font, colour):
     global color
     textSurface = font.render(text, True, color[colour])#render is a method of font object
@@ -90,36 +90,47 @@ def crash(text):
     global crashed
     crashed = True
 
-def doesCollid(ball, paddle):
-
-    global display_width
-    condition1 = (ball.cx == display_width-ball.RADIUS-paddle.WIDTH)
-    condition2 = False
-    for y in range(paddle.y-ball.RADIUS, paddle.y+paddle.HEIGHT+ball.RADIUS):
-        if ball.cy == y:
-            condition2 = True
-    return condition1 and condition2
 def game_loop():
     global crashed
     global ball_x_vel
     global ball_y_vel
     global ball
     global paddle
+    global clock
+
+
+
+
     while not crashed :
-
         clock.tick(60)
-        keys = pygame.key.get_pressed()
-
-
         for event in pygame.event.get():
             if event.type == pygame.QUIT :
                 crashed = True
-        if doesCollid(ball, paddle):
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_UP]:
+            if paddle.y <=0 :
+                paddle_velocity = 0
+            else:
+                paddle_velocity =-3
+        elif keys[pygame.K_DOWN]:
+            if paddle.y >= display_height-paddle.HEIGHT:
+                paddle_velocity = 0
+            else:
+                paddle_velocity = 3
+        else:
+            paddle_velocity = 0
+        c1 = (ball.cx >= display_width-ball.RADIUS-paddle.WIDTH)
+        c2 = (ball.cy < paddle.y + paddle.HEIGHT and ball.cy > paddle.y)
+        print(f"{c1}, {c2}")
+        paddle.erase()
+        paddle.update_position(paddle_velocity)
+        paddle.draw()
+        if c1 and c2:
             ball_x_vel = -3
             #if ball.vy*paddle.vy < 0:
             #    ball_y_vel = -ball_y_vel
-        #if ball.cx > display_width-ball.RADIUS :#ball approaching extream right
-        #    ball_x_vel = -3
+        if ball.cx > display_width-ball.RADIUS :#ball approaching extream right
+            ball_x_vel = -3
         #else:
         #    ball_x_vel = 3
 
@@ -136,31 +147,17 @@ def game_loop():
         #else:
         #    ball_y_vel = -3
 
-
-
-        if keys[pygame.K_UP]:
-            if paddle.y <=0 :
-                paddle_velocity = 0
-            else:
-                paddle_velocity =-3
-        elif keys[pygame.K_DOWN]:
-            if paddle.y >= display_height-paddle.HEIGHT:
-                paddle_velocity = 0
-            else:
-                paddle_velocity = 3
-        else:
-            paddle_velocity = 0
-
+            #ball.erase()
         ball.erase()
         ball.update_position(ball_x_vel, ball_y_vel)
         ball.draw()
-        paddle.erase()
-        paddle.update_position(paddle_velocity)
-        paddle.draw()
+
+
+
         pygame.display.update()
         #print(f"{ball.cx}, {ball.cy}, {ball.vx}, {ball.vy}, {paddle.y}, {paddle.vy}", file = pong_file)
-        if ball.cx == display_width - ball.RADIUS:
-            crash('You Crashed')
+        #if ball.cx == display_width - ball.RADIUS:
+        #    crash('You Crashed')
 
 game_loop()
 print('well played')
