@@ -5,9 +5,9 @@ display_width = 800
 display_height = 600
 game_display = pygame.display.set_mode((display_width, display_height))
 paddle_velocity = 3
-initial_pos_of_paddle = 10
-initial_x_pos_of_ball=60
-initial_y_pos_of_ball=100
+initial_pos_of_paddle = 190
+initial_x_pos_of_ball=64
+initial_y_pos_of_ball=10
 
 ball_x_vel = 3
 ball_y_vel = 3
@@ -21,7 +21,8 @@ color = {
 clock = pygame.time.Clock()
 crashed = False
 
-#pong_file = open('pong.csv', 'a')
+pong_file = open('pong.csv', 'a')
+
 
 class Ball():
     def __init__(self, cx, cy, vx, vy):
@@ -121,16 +122,16 @@ def game_loop():
             paddle_velocity = 0
         c1 = (ball.cx >= display_width-ball.RADIUS-paddle.WIDTH)
         c2 = (ball.cy < paddle.y + paddle.HEIGHT and ball.cy > paddle.y)
-        print(f"{c1}, {c2}")
+
         paddle.erase()
         paddle.update_position(paddle_velocity)
         paddle.draw()
         if c1 and c2:
             ball_x_vel = -3
-            #if ball.vy*paddle.vy < 0:
-            #    ball_y_vel = -ball_y_vel
+            if ball.vy*paddle.vy < 0:
+                ball_y_vel = -ball_y_vel
         if ball.cx > display_width-ball.RADIUS :#ball approaching extream right
-            ball_x_vel = -3
+            crash('you crashed')
         #else:
         #    ball_x_vel = 3
 
@@ -153,7 +154,7 @@ def game_loop():
         ball.draw()
 
 
-
+        print(f'{ball.cx}, {ball.cy}, {ball.vx}, {ball.vy}, {paddle.y}, {paddle.vy}', file = pong_file)
         pygame.display.update()
         #print(f"{ball.cx}, {ball.cy}, {ball.vx}, {ball.vy}, {paddle.y}, {paddle.vy}", file = pong_file)
         #if ball.cx == display_width - ball.RADIUS:
